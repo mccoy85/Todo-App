@@ -18,13 +18,11 @@ import { useFilteredTodos, useCreateTodo, useUpdateTodo, useToggleTodo, useDelet
 import { useTodoFilters } from '../hooks/useTodoFilters';
 import { TodoItemActions } from './TodoItemActions';
 import { TodoFormModal } from './TodoFormModal';
-import type { Todo, CreateTodoRequest } from '../types/todo';
-import { Priority } from '../types/todo';
+import type { Todo, CreateTodoRequest, StatusFilter } from '../types/todo';
+import { Priority, PRIORITY_OPTIONS, SORT_OPTIONS } from '../types/todo';
 
 const { Header, Content } = Layout;
 const { Title, Text } = Typography;
-
-type StatusFilter = 'all' | 'active' | 'completed' | 'deleted';
 
 const priorityConfig: Record<Priority, { color: string; label: string; icon: boolean }> = {
   [Priority.Low]: { color: '#52c41a', label: 'Low', icon: false },
@@ -173,9 +171,9 @@ export const TodoPage = () => {
             />
             <Flex gap={12} wrap="wrap">
               <Select style={{ minWidth: 140 }} placeholder="Priority" allowClear value={filters.priorityFilter} onChange={filters.setPriorityFilter}
-                options={[{ label: 'Low', value: Priority.Low }, { label: 'Medium', value: Priority.Medium }, { label: 'High', value: Priority.High }]} />
+                options={PRIORITY_OPTIONS} />
               <Select style={{ minWidth: 150 }} placeholder="Sort by" allowClear value={filters.sortBy} onChange={filters.setSortBy}
-                options={[{ label: 'Date Created', value: 'createdat' }, { label: 'Title', value: 'title' }, { label: 'Priority', value: 'priority' }, { label: 'Due Date', value: 'duedate' }]} />
+                options={SORT_OPTIONS} />
               {filters.sortBy && (
                 <Button icon={filters.sortDescending ? <SortDescendingOutlined /> : <SortAscendingOutlined />} onClick={filters.toggleSortDirection}>
                   {filters.sortDescending ? 'Desc' : 'Asc'}

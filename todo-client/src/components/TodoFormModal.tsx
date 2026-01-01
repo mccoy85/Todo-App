@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Modal, Form, Input, Select, DatePicker, Flex } from 'antd';
 import dayjs from 'dayjs';
 import type { Todo, CreateTodoRequest } from '../types/todo';
-import { Priority } from '../types/todo';
+import { Priority, PRIORITY_OPTIONS } from '../types/todo';
 
 interface TodoFormModalProps {
   open: boolean;
@@ -82,7 +82,7 @@ export const TodoFormModal = ({ open, editingTodo, initialValues, isSubmitting, 
         </Form.Item>
         <Flex gap={16}>
           <Form.Item name="priority" label="Priority" style={{ flex: 1 }} initialValue={Priority.Low} rules={[{ required: true, message: 'Required' }]}>
-            <Select size="large" options={[{ value: Priority.Low, label: 'Low' }, { value: Priority.Medium, label: 'Medium' }, { value: Priority.High, label: 'High' }]} />
+            <Select size="large" options={PRIORITY_OPTIONS} />
           </Form.Item>
           <Form.Item name="dueDate" label="Due Date" style={{ flex: 1 }} rules={[{ validator: (_, value) => !value || value >= dayjs().startOf('day') ? Promise.resolve() : Promise.reject('Cannot be in the past') }]}>
             <DatePicker style={{ width: '100%' }} size="large" format="MMM D, YYYY" disabledDate={(d) => d < dayjs().startOf('day')} />

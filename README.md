@@ -6,16 +6,17 @@ A full-stack Todo application with a .NET 9 API backend and React + Ant Design f
 
 ```
 TodoApp/
-├── src/
-│   ├── TodoApi.Api/           # ASP.NET Core Web API
-│   ├── TodoApi.Core/          # Business logic, entities, interfaces, DTOs
-│   └── TodoApi.Infrastructure/# Data access, repositories, EF Core
-├── tests/
-│   ├── TodoApi.Api.Tests/     # Integration tests
-│   ├── TodoApi.Core.Tests/    # Service unit tests
-│   └── TodoApi.Infrastructure.Tests/ # Repository tests
-├── todo-client/               # React + TypeScript frontend
-└── TodoApi.sln
+├── todo-api/                  # .NET 9 backend
+│   ├── src/
+│   │   ├── TodoApi.Api/           # ASP.NET Core Web API
+│   │   ├── TodoApi.Core/          # Business logic, entities, interfaces, DTOs
+│   │   └── TodoApi.Infrastructure/# Data access, repositories, EF Core
+│   ├── tests/
+│   │   ├── TodoApi.Api.Tests/     # Integration tests
+│   │   ├── TodoApi.Core.Tests/    # Service unit tests
+│   │   └── TodoApi.Infrastructure.Tests/ # Repository tests
+│   └── TodoApi.sln
+└── todo-client/               # React + TypeScript frontend
 ```
 
 ## Prerequisites
@@ -29,7 +30,7 @@ TodoApp/
 ### 1. Run the API
 
 ```bash
-cd src/TodoApi.Api
+cd todo-api/src/TodoApi.Api
 dotnet run
 ```
 
@@ -47,20 +48,22 @@ The frontend will start at `http://localhost:3000` (configurable via `VITE_UI_HO
 
 ### 3. View API Documentation
 
-Open `http://localhost:5121/swagger` to see the Swagger UI with all endpoints.
+Open `http://localhost:5121/api/docs` to see the Swagger UI with all available endpoints.
+
+The OpenAPI specification is available at `http://localhost:5121/api/docs/v1/swagger.json`.
 
 ## API Endpoints
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/todo` | Get all todos (with filtering, sorting, pagination) |
-| GET | `/api/todo/{id}` | Get a specific todo |
-| POST | `/api/todo` | Create a new todo |
-| PUT | `/api/todo/{id}` | Update a todo |
-| PATCH | `/api/todo/{id}/toggle` | Toggle completion status |
-| DELETE | `/api/todo/{id}` | Delete a todo |
-| GET | `/api/todo/deleted` | Get deleted todos |
-| PATCH | `/api/todo/{id}/restore` | Restore a deleted todo |
+| Method | Endpoint                 | Description                                         |
+| ------ | ------------------------ | --------------------------------------------------- |
+| GET    | `/api/todo`              | Get all todos (with filtering, sorting, pagination) |
+| GET    | `/api/todo/{id}`         | Get a specific todo                                 |
+| POST   | `/api/todo`              | Create a new todo                                   |
+| PUT    | `/api/todo/{id}`         | Update a todo                                       |
+| PATCH  | `/api/todo/{id}/toggle`  | Toggle completion status                            |
+| DELETE | `/api/todo/{id}`         | Delete a todo                                       |
+| GET    | `/api/todo/deleted`      | Get deleted todos                                   |
+| PATCH  | `/api/todo/{id}/restore` | Restore a deleted todo                              |
 
 ### Query Parameters (GET /api/todo)
 
@@ -76,6 +79,8 @@ Open `http://localhost:5121/swagger` to see the Swagger UI with all endpoints.
 ### Backend Tests
 
 ```bash
+cd todo-api
+
 # Run all tests
 dotnet test
 
@@ -83,6 +88,21 @@ dotnet test
 dotnet test tests/TodoApi.Api.Tests
 dotnet test tests/TodoApi.Core.Tests
 dotnet test tests/TodoApi.Infrastructure.Tests
+```
+
+### Frontend Tests
+
+```bash
+cd todo-client
+
+# Run tests in watch mode
+npm test
+
+# Run tests once
+npm run test:run
+
+# Run with coverage
+npm run test:coverage
 ```
 
 ### Frontend Build
@@ -113,6 +133,7 @@ npm run build
 - **Ant Design** for UI components
 - **SWR** for data fetching with caching and invalidation
 - **Vite** for fast development and builds
+- **Vitest** + **React Testing Library** for unit and component tests
 
 ### Key Features
 
@@ -123,7 +144,7 @@ npm run build
 
 ## Configuration
 
-### API (src/TodoApi.Api/appsettings.json)
+### API (todo-api/src/TodoApi.Api/appsettings.json)
 
 ```json
 {
@@ -139,16 +160,17 @@ npm run build
 
 ### Frontend (todo-client/.env)
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `VITE_API_HOST` | API server hostname | `localhost` |
-| `VITE_API_PORT` | API server port | `5121` |
-| `VITE_API_BASE_URL` | Full API base URL (overrides host/port) | `http://localhost:5121/api/todo` |
-| `VITE_API_BATCH_SIZE` | Number of items fetched per API request when loading all todos | `100` |
-| `VITE_UI_HOST` | Frontend dev server hostname | `localhost` |
-| `VITE_UI_PORT` | Frontend dev server port | `3000` |
+| Variable              | Description                                                    | Default                          |
+| --------------------- | -------------------------------------------------------------- | -------------------------------- |
+| `VITE_API_HOST`       | API server hostname                                            | `localhost`                      |
+| `VITE_API_PORT`       | API server port                                                | `5121`                           |
+| `VITE_API_BASE_URL`   | Full API base URL (overrides host/port)                        | `http://localhost:5121/api/todo` |
+| `VITE_API_BATCH_SIZE` | Number of items fetched per API request when loading all todos | `100`                            |
+| `VITE_UI_HOST`        | Frontend dev server hostname                                   | `localhost`                      |
+| `VITE_UI_PORT`        | Frontend dev server port                                       | `3000`                           |
 
 Example `.env` file:
+
 ```
 VITE_API_HOST=localhost
 VITE_API_PORT=5121
@@ -169,8 +191,7 @@ VITE_UI_PORT=3000
 
 1. **User authentication** with JWT
 2. **Real-time updates** with SignalR
-3. **Frontend tests** with Vitest and React Testing Library
-4. **Docker** compose for easy deployment
-5. **CI/CD pipeline** with GitHub Actions
-6. **Rate limiting** and request throttling
-7. **Logging** with Serilog and structured logs
+3. **Docker** compose for easy deployment
+4. **CI/CD pipeline** with GitHub Actions
+5. **Rate limiting** and request throttling
+6. **Logging** with Serilog and structured logs
