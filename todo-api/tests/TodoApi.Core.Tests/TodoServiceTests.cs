@@ -1,6 +1,5 @@
 using Microsoft.Extensions.Logging;
 using Moq;
-using NUnit.Framework.Legacy;
 using TodoApi.Core.DTOs;
 using TodoApi.Core.Entities;
 using TodoApi.Core.Interfaces;
@@ -29,8 +28,8 @@ public class TodoServiceTests
         // Arrange
         var request = new CreateTodoRequest
         {
-            Title = "Test Todo",
-            Description = "Test Description",
+            Title = "  Test Todo  ",
+            Description = "  Test Description  ",
             Priority = Priority.High
         };
 
@@ -46,13 +45,14 @@ public class TodoServiceTests
         var result = await _service.CreateTodoAsync(request);
 
         // Assert
-        ClassicAssert.IsNotNull(result);
-        ClassicAssert.AreEqual("Test Todo", result.Title);
-        ClassicAssert.AreEqual("Test Description", result.Description);
-        ClassicAssert.AreEqual(Priority.High, result.Priority);
-        ClassicAssert.IsFalse(result.IsCompleted);
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Title, Is.EqualTo("Test Todo"));
+        Assert.That(result.Description, Is.EqualTo("Test Description"));
+        Assert.That(result.Priority, Is.EqualTo(Priority.High));
+        Assert.That(result.IsCompleted, Is.False);
         _repositoryMock.Verify(r => r.AddAsync(It.IsAny<TodoItem>()), Times.Once);
     }
+
 
     [Test]
     public async Task GetTodoByIdAsync_WhenTodoExists_ShouldReturnTodo()
@@ -73,9 +73,9 @@ public class TodoServiceTests
         var result = await _service.GetTodoByIdAsync(1);
 
         // Assert
-        ClassicAssert.IsNotNull(result);
-        ClassicAssert.AreEqual(1, result!.Id);
-        ClassicAssert.AreEqual("Existing Todo", result.Title);
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result!.Id, Is.EqualTo(1));
+        Assert.That(result.Title, Is.EqualTo("Existing Todo"));
     }
 
     [Test]
@@ -88,7 +88,7 @@ public class TodoServiceTests
         var result = await _service.GetTodoByIdAsync(999);
 
         // Assert
-        ClassicAssert.IsNull(result);
+        Assert.That(result, Is.Null);
     }
 
     [Test]
@@ -107,8 +107,8 @@ public class TodoServiceTests
 
         var updateRequest = new UpdateTodoRequest
         {
-            Title = "Updated Title",
-            Description = "Updated Description",
+            Title = "  Updated Title  ",
+            Description = "  Updated Description  ",
             Priority = Priority.High,
             IsCompleted = true
         };
@@ -120,13 +120,14 @@ public class TodoServiceTests
         var result = await _service.UpdateTodoAsync(1, updateRequest);
 
         // Assert
-        ClassicAssert.IsNotNull(result);
-        ClassicAssert.AreEqual("Updated Title", result!.Title);
-        ClassicAssert.AreEqual("Updated Description", result.Description);
-        ClassicAssert.AreEqual(Priority.High, result.Priority);
-        ClassicAssert.IsTrue(result.IsCompleted);
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result!.Title, Is.EqualTo("Updated Title"));
+        Assert.That(result.Description, Is.EqualTo("Updated Description"));
+        Assert.That(result.Priority, Is.EqualTo(Priority.High));
+        Assert.That(result.IsCompleted, Is.True);
         _repositoryMock.Verify(r => r.UpdateAsync(It.IsAny<TodoItem>()), Times.Once);
     }
+
 
     [Test]
     public async Task ToggleTodoAsync_ShouldToggleCompletionStatus()
@@ -147,8 +148,8 @@ public class TodoServiceTests
         var result = await _service.ToggleTodoAsync(1);
 
         // Assert
-        ClassicAssert.IsNotNull(result);
-        ClassicAssert.IsTrue(result!.IsCompleted);
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result!.IsCompleted, Is.True);
         _repositoryMock.Verify(r => r.UpdateAsync(It.IsAny<TodoItem>()), Times.Once);
     }
 
@@ -162,7 +163,7 @@ public class TodoServiceTests
         var result = await _service.DeleteTodoAsync(1);
 
         // Assert
-        ClassicAssert.IsTrue(result);
+        Assert.That(result, Is.True);
         _repositoryMock.Verify(r => r.DeleteAsync(1), Times.Once);
     }
 
@@ -176,7 +177,7 @@ public class TodoServiceTests
         var result = await _service.DeleteTodoAsync(999);
 
         // Assert
-        ClassicAssert.IsFalse(result);
+        Assert.That(result, Is.False);
     }
 
     [Test]
@@ -204,10 +205,10 @@ public class TodoServiceTests
         var result = await _service.GetAllTodosAsync(queryParams);
 
         // Assert
-        ClassicAssert.IsNotNull(result);
-        ClassicAssert.AreEqual(1, result.Items.Count());
-        ClassicAssert.AreEqual("High Priority Incomplete", result.Items.First().Title);
-        ClassicAssert.AreEqual(1, result.TotalCount);
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Items.Count(), Is.EqualTo(1));
+        Assert.That(result.Items.First().Title, Is.EqualTo("High Priority Incomplete"));
+        Assert.That(result.TotalCount, Is.EqualTo(1));
     }
 
     [Test]
@@ -237,10 +238,10 @@ public class TodoServiceTests
         var result = await _service.GetAllTodosAsync(queryParams);
 
         // Assert
-        ClassicAssert.IsNotNull(result);
-        ClassicAssert.AreEqual(3, result.Items.Count());
-        ClassicAssert.AreEqual("Apple", result.Items.First().Title);
-        ClassicAssert.AreEqual("Zebra", result.Items.Last().Title);
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Items.Count(), Is.EqualTo(3));
+        Assert.That(result.Items.First().Title, Is.EqualTo("Apple"));
+        Assert.That(result.Items.Last().Title, Is.EqualTo("Zebra"));
     }
 
     [Test]
@@ -266,33 +267,33 @@ public class TodoServiceTests
         var result = await _service.GetDeletedTodosAsync(queryParams);
 
         // Assert
-        ClassicAssert.IsNotNull(result);
-        ClassicAssert.AreEqual(1, result.Items.Count());
-        ClassicAssert.AreEqual("Deleted Todo", result.Items.First().Title);
-        ClassicAssert.AreEqual(1, result.TotalCount);
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Items.Count(), Is.EqualTo(1));
+        Assert.That(result.Items.First().Title, Is.EqualTo("Deleted Todo"));
+        Assert.That(result.TotalCount, Is.EqualTo(1));
     }
 
     [Test]
     public async Task RestoreTodoAsync_WhenTodoIsDeleted_ShouldReturnTodo()
     {
         // Arrange
-        var todo = new TodoItem
+        var restoredTodo = new TodoItem
         {
             Id = 1,
             Title = "Restore Me",
-            IsDeleted = true,
-            DeletedAt = DateTime.UtcNow,
+            IsDeleted = false,
+            DeletedAt = null,
             CreatedAt = DateTime.UtcNow
         };
 
-        _repositoryMock.Setup(r => r.RestoreAsync(1)).ReturnsAsync(todo);
+        _repositoryMock.Setup(r => r.RestoreAsync(1)).ReturnsAsync(restoredTodo);
 
         // Act
         var result = await _service.RestoreTodoAsync(1);
 
         // Assert
-        ClassicAssert.IsNotNull(result);
-        ClassicAssert.IsFalse(result!.IsDeleted);
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result!.IsDeleted, Is.False);
         _repositoryMock.Verify(r => r.RestoreAsync(1), Times.Once);
     }
 }

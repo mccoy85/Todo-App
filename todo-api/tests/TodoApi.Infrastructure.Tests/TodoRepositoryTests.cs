@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using NUnit.Framework.Legacy;
 using TodoApi.Core.Entities;
 using TodoApi.Infrastructure.Data;
 using TodoApi.Infrastructure.Repositories;
@@ -39,9 +38,9 @@ public class TodoRepositoryTests
         var result = await repository.GetByIdAsync(todo.Id);
 
         // Assert
-        ClassicAssert.IsNotNull(result);
-        ClassicAssert.AreEqual(todo.Id, result!.Id);
-        ClassicAssert.AreEqual("Test Todo", result.Title);
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result!.Id, Is.EqualTo(todo.Id));
+        Assert.That(result.Title, Is.EqualTo("Test Todo"));
     }
 
     [Test]
@@ -55,7 +54,7 @@ public class TodoRepositoryTests
         var result = await repository.GetByIdAsync(999);
 
         // Assert
-        ClassicAssert.IsNull(result);
+        Assert.That(result, Is.Null);
     }
 
     [Test]
@@ -77,12 +76,12 @@ public class TodoRepositoryTests
         var result = await repository.AddAsync(todo);
 
         // Assert
-        ClassicAssert.IsNotNull(result);
-        ClassicAssert.IsTrue(result.Id > 0);
-        ClassicAssert.AreEqual("New Todo", result.Title);
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Id, Is.GreaterThan(0));
+        Assert.That(result.Title, Is.EqualTo("New Todo"));
 
         var savedTodo = await context.TodoItems.FindAsync(result.Id);
-        ClassicAssert.IsNotNull(savedTodo);
+        Assert.That(savedTodo, Is.Not.Null);
     }
 
     [Test]
@@ -113,10 +112,10 @@ public class TodoRepositoryTests
         var result = await repository.UpdateAsync(todo);
 
         // Assert
-        ClassicAssert.IsNotNull(result);
-        ClassicAssert.AreEqual("Updated Title", result.Title);
-        ClassicAssert.AreEqual("Updated Description", result.Description);
-        ClassicAssert.AreEqual(Priority.High, result.Priority);
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result.Title, Is.EqualTo("Updated Title"));
+        Assert.That(result.Description, Is.EqualTo("Updated Description"));
+        Assert.That(result.Priority, Is.EqualTo(Priority.High));
     }
 
     [Test]
@@ -138,13 +137,13 @@ public class TodoRepositoryTests
         var result = await repository.DeleteAsync(todo.Id);
 
         // Assert
-        ClassicAssert.IsTrue(result);
+        Assert.That(result, Is.True);
         var deletedTodo = await context.TodoItems
             .IgnoreQueryFilters()
             .FirstOrDefaultAsync(item => item.Id == todo.Id);
-        ClassicAssert.IsNotNull(deletedTodo);
-        ClassicAssert.IsTrue(deletedTodo!.IsDeleted);
-        ClassicAssert.IsNotNull(deletedTodo.DeletedAt);
+        Assert.That(deletedTodo, Is.Not.Null);
+        Assert.That(deletedTodo!.IsDeleted, Is.True);
+        Assert.That(deletedTodo.DeletedAt, Is.Not.Null);
     }
 
     [Test]
@@ -158,7 +157,7 @@ public class TodoRepositoryTests
         var result = await repository.DeleteAsync(999);
 
         // Assert
-        ClassicAssert.IsFalse(result);
+        Assert.That(result, Is.False);
     }
 
     [Test]
@@ -184,9 +183,9 @@ public class TodoRepositoryTests
             pageSize: 10);
 
         // Assert
-        ClassicAssert.AreEqual(1, totalCount);
-        ClassicAssert.AreEqual(1, items.Count());
-        ClassicAssert.AreEqual("Completed", items.First().Title);
+        Assert.That(totalCount, Is.EqualTo(1));
+        Assert.That(items.Count(), Is.EqualTo(1));
+        Assert.That(items.First().Title, Is.EqualTo("Completed"));
     }
 
     [Test]
@@ -212,9 +211,9 @@ public class TodoRepositoryTests
             pageSize: 10);
 
         // Assert
-        ClassicAssert.AreEqual(1, totalCount);
-        ClassicAssert.AreEqual(1, items.Count());
-        ClassicAssert.AreEqual("High Priority", items.First().Title);
+        Assert.That(totalCount, Is.EqualTo(1));
+        Assert.That(items.Count(), Is.EqualTo(1));
+        Assert.That(items.First().Title, Is.EqualTo("High Priority"));
     }
 
     [Test]
@@ -241,9 +240,9 @@ public class TodoRepositoryTests
             pageSize: 10);
 
         // Assert
-        ClassicAssert.AreEqual(3, totalCount);
-        ClassicAssert.AreEqual("Apple", items.First().Title);
-        ClassicAssert.AreEqual("Zebra", items.Last().Title);
+        Assert.That(totalCount, Is.EqualTo(3));
+        Assert.That(items.First().Title, Is.EqualTo("Apple"));
+        Assert.That(items.Last().Title, Is.EqualTo("Zebra"));
     }
 
     [Test]
@@ -269,10 +268,10 @@ public class TodoRepositoryTests
             pageSize: 5);
 
         // Assert
-        ClassicAssert.AreEqual(15, totalCount);
-        ClassicAssert.AreEqual(5, items.Count());
-        ClassicAssert.AreEqual("Todo 6", items.First().Title);
-        ClassicAssert.AreEqual("Todo 10", items.Last().Title);
+        Assert.That(totalCount, Is.EqualTo(15));
+        Assert.That(items.Count(), Is.EqualTo(5));
+        Assert.That(items.First().Title, Is.EqualTo("Todo 6"));
+        Assert.That(items.Last().Title, Is.EqualTo("Todo 10"));
     }
 
     [Test]
@@ -298,9 +297,9 @@ public class TodoRepositoryTests
             pageSize: 10);
 
         // Assert
-        ClassicAssert.AreEqual(1, totalCount);
-        ClassicAssert.AreEqual(1, items.Count());
-        ClassicAssert.AreEqual("Deleted", items.First().Title);
+        Assert.That(totalCount, Is.EqualTo(1));
+        Assert.That(items.Count(), Is.EqualTo(1));
+        Assert.That(items.First().Title, Is.EqualTo("Deleted"));
     }
 
     [Test]
@@ -324,8 +323,8 @@ public class TodoRepositoryTests
         var result = await repository.RestoreAsync(todo.Id);
 
         // Assert
-        ClassicAssert.IsNotNull(result);
-        ClassicAssert.IsFalse(result!.IsDeleted);
-        ClassicAssert.IsNull(result.DeletedAt);
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result!.IsDeleted, Is.False);
+        Assert.That(result.DeletedAt, Is.Null);
     }
 }

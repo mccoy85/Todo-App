@@ -9,10 +9,11 @@ import { message } from 'antd';
 
 const API_HOST = import.meta.env.VITE_API_HOST || 'localhost';
 const API_PORT = import.meta.env.VITE_API_PORT || '5121';
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || `http://${API_HOST}:${API_PORT}/api/todo`;
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || `http://${API_HOST}:${API_PORT}/api`;
 const DEFAULT_BATCH_SIZE = Number(import.meta.env.VITE_API_BATCH_SIZE) || 100;
 
-async function handleResponse<T>(response: Response): Promise<T> {
+// Normalize API responses and surface errors via toast + exception.
+const handleResponse = async <T>(response: Response): Promise<T> => {
   if (!response.ok) {
     const error = await response.text();
     message.error(error || `Request failed (${response.status})`);
@@ -22,8 +23,9 @@ async function handleResponse<T>(response: Response): Promise<T> {
     return undefined as T;
   }
   return response.json();
-}
+};
 
+// API client for todo operations.
 export const todoApi = {
   async getAll(params?: TodoQueryParams): Promise<TodoListResponse> {
     const searchParams = new URLSearchParams();
@@ -38,8 +40,8 @@ export const todoApi = {
     if (params?.pageSize) searchParams.set('pageSize', String(params.pageSize));
 
     const url = searchParams.toString()
-      ? `${API_BASE_URL}?${searchParams}`
-      : API_BASE_URL;
+      ? `${API_BASE_URL}/todo?${searchParams}`
+      : `${API_BASE_URL}/todo`;
 
     const response = await fetch(url);
     return handleResponse<TodoListResponse>(response);
@@ -58,15 +60,15 @@ export const todoApi = {
     if (params?.pageSize) searchParams.set('pageSize', String(params.pageSize));
 
     const url = searchParams.toString()
-      ? `${API_BASE_URL}/deleted?${searchParams}`
-      : `${API_BASE_URL}/deleted`;
+      ? `${API_BASE_URL}/todo/deleted?${searchParams}`
+      : `${API_BASE_URL}/todo/deleted`;
 
     const response = await fetch(url);
     return handleResponse<TodoListResponse>(response);
   },
 
   async getById(id: number): Promise<Todo> {
-    const response = await fetch(`${API_BASE_URL}/${id}`);
+    const response = await fetch(`${API_BASE_URL}/todo/${id}`);
     return handleResponse<Todo>(response);
   },
 
@@ -94,7 +96,7 @@ export const todoApi = {
   },
 
   async create(todo: CreateTodoRequest): Promise<Todo> {
-    const response = await fetch(API_BASE_URL, {
+    const response = await fetch(`${API_BASE_URL}/todo`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(todo),
@@ -103,7 +105,7 @@ export const todoApi = {
   },
 
   async update(id: number, todo: UpdateTodoRequest): Promise<Todo> {
-    const response = await fetch(`${API_BASE_URL}/${id}`, {
+    const response = await fetch(`${API_BASE_URL}/todo/${id}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(todo),
@@ -112,14 +114,14 @@ export const todoApi = {
   },
 
   async toggle(id: number): Promise<Todo> {
-    const response = await fetch(`${API_BASE_URL}/${id}/toggle`, {
+    const response = await fetch(`${API_BASE_URL}/todo/${id}/toggle`, {
       method: 'PATCH',
     });
     return handleResponse<Todo>(response);
   },
 
   async delete(id: number): Promise<void> {
-    const response = await fetch(`${API_BASE_URL}/${id}`, {
+    const response = await fetch(`${API_BASE_URL}/todo/${id}`, {
       method: 'DELETE',
     });
     return handleResponse<void>(response);
@@ -149,7 +151,7 @@ export const todoApi = {
   },
 
   async restore(id: number): Promise<Todo> {
-    const response = await fetch(`${API_BASE_URL}/${id}/restore`, {
+    const response = await fetch(`${API_BASE_URL}/todo/${id}/restore`, {
       method: 'PATCH',
     });
     return handleResponse<Todo>(response);

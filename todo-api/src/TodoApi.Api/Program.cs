@@ -1,10 +1,15 @@
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc;
 using TodoApi.Api.Middleware;
+using TodoApi.Api.Validators;
 using TodoApi.Core.Interfaces;
 using TodoApi.Core.Services;
 using TodoApi.Infrastructure.Data;
 using TodoApi.Infrastructure.Repositories;
 
+// App startup: DI, middleware, and endpoint configuration.
 var builder = WebApplication.CreateBuilder(args);
 
 // Configure Kestrel to use host/port from configuration or environment variables
@@ -18,6 +23,30 @@ if (!builder.Environment.IsEnvironment("Testing"))
 
 // Add services to the container.
 builder.Services.AddControllers();
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddValidatorsFromAssemblyContaining<CreateTodoRequestValidator>();
+// Customize validation error responses to include all errors in a structured format
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.InvalidModelStateResponseFactory = context =>
+    {
+        var errors = context.ModelState
+            .Where(entry => entry.Value?.Errors.Count > 0)
+            .ToDictionary(
+                entry => entry.Key,
+                entry => entry.Value!.Errors.Select(e => e.ErrorMessage).ToArray());
+
+        var response = new ErrorResponse
+        {
+            StatusCode = StatusCodes.Status400BadRequest,
+            Message = "Validation failed",
+            Type = "ValidationError",
+            Errors = errors
+        };
+
+        return new BadRequestObjectResult(response);
+    };
+});
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -43,11 +72,15 @@ builder.Services.AddScoped<ITodoService, TodoService>();
 // Configure CORS for React frontend
 builder.Services.AddCors(options =>
 {
+    var allowedOrigins = builder.Configuration
+        .GetSection("Cors:AllowedOrigins")
+        .Get<string[]>() ?? ["http://localhost:3000"];
+
     options.AddPolicy("AllowReactApp", policy =>
     {
-        policy.WithOrigins("http://localhost:3000", "http://localhost:5173")
-              .AllowAnyHeader()
-              .AllowAnyMethod();
+        policy.WithOrigins(allowedOrigins)
+            .AllowAnyHeader()
+            .AllowAnyMethod();
     });
 });
 
@@ -77,7 +110,10 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-app.UseHttpsRedirection();
+if (!app.Environment.IsEnvironment("Testing"))
+{
+    app.UseHttpsRedirection();
+}
 app.UseCors("AllowReactApp");
 app.UseAuthorization();
 app.MapControllers();

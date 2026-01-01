@@ -122,10 +122,16 @@ npm run build
 
 ### Key Design Decisions
 
-1. **Repository Pattern** - Generic `IRepository<T>` with specialized `ITodoRepository` for custom queries
-2. **DTOs** - Separate request/response DTOs (never expose EF entities directly)
-3. **Validation** - Data annotations on DTOs with consistent error responses
-4. **Global Error Handling** - Middleware returns structured JSON error responses
+1. **Repository Pattern** - Generic `IRepository<T>` with specialized `ITodoRepository` for custom queries. Keeps data access isolated from services and makes testing simpler.
+2. **DTOs** - Separate request/response DTOs (never expose EF entities directly). Enables validation at the boundary and stable API contracts.
+3. **Validation** - FluentValidation rules with consistent error responses, letting the API reject bad input early with clear messages.
+4. **Global Error Handling** - Middleware returns a uniform `ErrorResponse` shape and the API config uses the same shape for validation errors.
+5. **Soft Deletes** - Todo items are marked deleted and filtered by default, with a restore endpoint to recover items without data loss.
+6. **Client Data Caching** - The frontend caches full lists in SWR and performs client-side filtering/sorting/pagination for fast UI updates.
+7. **Config-Driven Ports** - API/UI hosts and ports are configurable via environment settings to make local setup flexible.
+8. **Dev-Only Migrations** - Database migrations auto-apply only in Development to avoid implicit changes in prod environments.
+9. **Error Contract** - Validation and exception errors share a consistent response shape for simpler client handling.
+10. **Refresh Cadence** - SWR refreshes cached lists every 60 seconds to balance freshness and network load.
 
 ### Frontend
 
@@ -154,27 +160,30 @@ npm run build
   "Api": {
     "Host": "localhost",
     "Port": 5121
+  },
+  "Cors": {
+    "AllowedOrigins": ["http://localhost:3000"]
   }
 }
 ```
 
 ### Frontend (todo-client/.env)
 
-| Variable              | Description                                                    | Default                          |
-| --------------------- | -------------------------------------------------------------- | -------------------------------- |
-| `VITE_API_HOST`       | API server hostname                                            | `localhost`                      |
-| `VITE_API_PORT`       | API server port                                                | `5121`                           |
-| `VITE_API_BASE_URL`   | Full API base URL (overrides host/port)                        | `http://localhost:5121/api/todo` |
-| `VITE_API_BATCH_SIZE` | Number of items fetched per API request when loading all todos | `100`                            |
-| `VITE_UI_HOST`        | Frontend dev server hostname                                   | `localhost`                      |
-| `VITE_UI_PORT`        | Frontend dev server port                                       | `3000`                           |
+| Variable              | Description                                                    | Default                     |
+| --------------------- | -------------------------------------------------------------- | --------------------------- |
+| `VITE_API_HOST`       | API server hostname                                            | `localhost`                 |
+| `VITE_API_PORT`       | API server port                                                | `5121`                      |
+| `VITE_API_BASE_URL`   | Full API base URL (overrides host/port)                        | `http://localhost:5121/api` |
+| `VITE_API_BATCH_SIZE` | Number of items fetched per API request when loading all todos | `100`                       |
+| `VITE_UI_HOST`        | Frontend dev server hostname                                   | `localhost`                 |
+| `VITE_UI_PORT`        | Frontend dev server port                                       | `3000`                      |
 
 Example `.env` file:
 
 ```
 VITE_API_HOST=localhost
 VITE_API_PORT=5121
-VITE_API_BASE_URL=http://localhost:5121/api/todo
+VITE_API_BASE_URL=http://localhost:5121/api
 VITE_API_BATCH_SIZE=100
 VITE_UI_HOST=localhost
 VITE_UI_PORT=3000
@@ -185,7 +194,6 @@ VITE_UI_PORT=3000
 1. **SQLite** - Chosen for simplicity and portability. For production, consider PostgreSQL or SQL Server.
 2. **No Authentication** - This is a demo app. Real apps would need auth middleware.
 3. **Simple Service Layer** - No CQRS/MediatR to keep complexity low for a todo app.
-4. **Soft Deletes Implemented** - Deleted todos are hidden by default and can be restored.
 
 ## What I'd Add With More Time
 
@@ -195,3 +203,4 @@ VITE_UI_PORT=3000
 4. **CI/CD pipeline** with GitHub Actions
 5. **Rate limiting** and request throttling
 6. **Logging** with Serilog and structured logs
+7. **bulk actions** for deleting and completing

@@ -3,6 +3,7 @@ import { TodoPage } from './components/TodoPage';
 import { LandingPage } from './components/LandingPage';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
+// App shell with theme + route wiring.
 const App = () => {
   return (
     <ConfigProvider
