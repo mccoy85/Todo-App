@@ -4,6 +4,7 @@ using TodoApi.Infrastructure.Data;
 
 namespace TodoApi.Infrastructure.Repositories;
 
+// Generic EF repository for basic CRUD operations.
 public class Repository<T> : IRepository<T> where T : class
 {
     protected readonly TodoDbContext _context;
@@ -40,7 +41,7 @@ public class Repository<T> : IRepository<T> where T : class
     }
 
     public virtual async Task<T> UpdateAsync(T entity)
-    {
+    {   // Update the entity
         _dbSet.Update(entity);
         await SaveChangesAsync();
         return entity;
@@ -48,12 +49,14 @@ public class Repository<T> : IRepository<T> where T : class
 
     public virtual async Task<bool> DeleteAsync(int id)
     {
+        // Find the entity by ID
         var entity = await GetByIdAsync(id);
+        // If not found, return false
         if (entity == null)
         {
             return false;
         }
-
+        // If entity supports soft delete, mark as deleted
         if (entity is ISoftDeletable softDeletable)
         {
             if (softDeletable.IsDeleted)
@@ -67,7 +70,7 @@ public class Repository<T> : IRepository<T> where T : class
             await SaveChangesAsync();
             return true;
         }
-
+        // Otherwise, perform hard delete
         _dbSet.Remove(entity);
         await SaveChangesAsync();
         return true;

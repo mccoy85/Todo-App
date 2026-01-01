@@ -3,6 +3,7 @@ using System.Text.Json;
 
 namespace TodoApi.Api.Middleware;
 
+// Centralized exception handler that formats errors for API responses.
 public class ExceptionHandlingMiddleware
 {
     private readonly RequestDelegate _next;
@@ -74,6 +75,7 @@ public class ErrorResponse
     public string Message { get; set; } = string.Empty;
     public string Type { get; set; } = string.Empty;
     public DateTime Timestamp { get; set; } = DateTime.UtcNow;
+    public IDictionary<string, string[]>? Errors { get; set; }
 }
 
 public static class ExceptionHandlingMiddlewareExtensions

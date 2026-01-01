@@ -12,6 +12,7 @@ interface TodoItemActionsProps {
   onRestore: () => void;
 }
 
+// Action cluster for a single todo row (edit/duplicate/delete/restore).
 export const TodoItemActions = ({
   isDeletedView,
   isToggling,

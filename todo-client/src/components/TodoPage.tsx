@@ -30,6 +30,7 @@ const priorityConfig: Record<Priority, { color: string; label: string; icon: boo
   [Priority.High]: { color: '#ff4d4f', label: 'High', icon: true },
 };
 
+// Convert due dates into a user-friendly label and status flags.
 const formatDueDate = (dateString: string): { text: string; isOverdue: boolean; isToday: boolean } => {
   const date = new Date(dateString);
   const today = new Date();
@@ -46,6 +47,7 @@ const formatDueDate = (dateString: string): { text: string; isOverdue: boolean; 
   return { text: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), isOverdue: false, isToday: false };
 };
 
+// Main task list view with filters, pagination, and CRUD actions.
 export const TodoPage = () => {
   const [formOpen, setFormOpen] = useState(false);
   const [editingTodo, setEditingTodo] = useState<Todo | null>(null);

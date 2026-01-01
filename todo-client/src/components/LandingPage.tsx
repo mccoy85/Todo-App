@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 
+// Simple landing view that routes users into the app.
 export const LandingPage = () => {
   return (
     <div className="landing">

@@ -1,6 +1,5 @@
 using System.Net;
 using System.Net.Http.Json;
-using NUnit.Framework.Legacy;
 using TodoApi.Core.DTOs;
 using TodoApi.Core.Entities;
 
@@ -36,8 +35,8 @@ public class TodoApiIntegrationTests
         // Assert
         response.EnsureSuccessStatusCode();
         var result = await response.Content.ReadFromJsonAsync<TodoListResponse>();
-        ClassicAssert.IsNotNull(result);
-        ClassicAssert.AreEqual(0, result!.TotalCount);
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result!.TotalCount, Is.EqualTo(0));
     }
 
     [Test]
@@ -55,12 +54,12 @@ public class TodoApiIntegrationTests
         var response = await _client.PostAsJsonAsync("/api/todo", request);
 
         // Assert
-        ClassicAssert.AreEqual(HttpStatusCode.Created, response.StatusCode);
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Created));
         var result = await response.Content.ReadFromJsonAsync<TodoResponse>();
-        ClassicAssert.IsNotNull(result);
-        ClassicAssert.AreEqual("Test Todo", result!.Title);
-        ClassicAssert.AreEqual("Test Description", result.Description);
-        ClassicAssert.AreEqual(Priority.High, result.Priority);
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result!.Title, Is.EqualTo("Test Todo"));
+        Assert.That(result.Description, Is.EqualTo("Test Description"));
+        Assert.That(result.Priority, Is.EqualTo(Priority.High));
     }
 
     [Test]
@@ -77,7 +76,7 @@ public class TodoApiIntegrationTests
         var response = await _client.PostAsJsonAsync("/api/todo", request);
 
         // Assert
-        ClassicAssert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
     }
 
     [Test]
@@ -98,9 +97,9 @@ public class TodoApiIntegrationTests
         // Assert
         response.EnsureSuccessStatusCode();
         var result = await response.Content.ReadFromJsonAsync<TodoResponse>();
-        ClassicAssert.IsNotNull(result);
-        ClassicAssert.AreEqual(createdTodo.Id, result!.Id);
-        ClassicAssert.AreEqual("Test Todo", result.Title);
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result!.Id, Is.EqualTo(createdTodo.Id));
+        Assert.That(result.Title, Is.EqualTo("Test Todo"));
     }
 
     [Test]
@@ -110,7 +109,7 @@ public class TodoApiIntegrationTests
         var response = await _client.GetAsync("/api/todo/99999");
 
         // Assert
-        ClassicAssert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
     }
 
     [Test]
@@ -139,11 +138,11 @@ public class TodoApiIntegrationTests
         // Assert
         response.EnsureSuccessStatusCode();
         var result = await response.Content.ReadFromJsonAsync<TodoResponse>();
-        ClassicAssert.IsNotNull(result);
-        ClassicAssert.AreEqual("Updated Title", result!.Title);
-        ClassicAssert.AreEqual("Updated Description", result.Description);
-        ClassicAssert.AreEqual(Priority.High, result.Priority);
-        ClassicAssert.IsTrue(result.IsCompleted);
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result!.Title, Is.EqualTo("Updated Title"));
+        Assert.That(result.Description, Is.EqualTo("Updated Description"));
+        Assert.That(result.Priority, Is.EqualTo(Priority.High));
+        Assert.That(result.IsCompleted, Is.True);
     }
 
     [Test]
@@ -160,7 +159,7 @@ public class TodoApiIntegrationTests
         var response = await _client.PutAsJsonAsync("/api/todo/99999", updateRequest);
 
         // Assert
-        ClassicAssert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
     }
 
     [Test]
@@ -174,7 +173,7 @@ public class TodoApiIntegrationTests
         };
         var createResponse = await _client.PostAsJsonAsync("/api/todo", createRequest);
         var createdTodo = await createResponse.Content.ReadFromJsonAsync<TodoResponse>();
-        ClassicAssert.IsFalse(createdTodo!.IsCompleted);
+        Assert.That(createdTodo!.IsCompleted, Is.False);
 
         // Act - Toggle to complete
         var response = await _client.PatchAsync($"/api/todo/{createdTodo.Id}/toggle", null);
@@ -182,8 +181,8 @@ public class TodoApiIntegrationTests
         // Assert
         response.EnsureSuccessStatusCode();
         var result = await response.Content.ReadFromJsonAsync<TodoResponse>();
-        ClassicAssert.IsNotNull(result);
-        ClassicAssert.IsTrue(result!.IsCompleted);
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result!.IsCompleted, Is.True);
 
         // Act - Toggle back to incomplete
         response = await _client.PatchAsync($"/api/todo/{createdTodo.Id}/toggle", null);
@@ -191,7 +190,7 @@ public class TodoApiIntegrationTests
         // Assert
         response.EnsureSuccessStatusCode();
         result = await response.Content.ReadFromJsonAsync<TodoResponse>();
-        ClassicAssert.IsFalse(result!.IsCompleted);
+        Assert.That(result!.IsCompleted, Is.False);
     }
 
     [Test]
@@ -210,11 +209,11 @@ public class TodoApiIntegrationTests
         var response = await _client.DeleteAsync($"/api/todo/{createdTodo!.Id}");
 
         // Assert
-        ClassicAssert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NoContent));
 
         // Verify it's actually deleted
         var getResponse = await _client.GetAsync($"/api/todo/{createdTodo.Id}");
-        ClassicAssert.AreEqual(HttpStatusCode.NotFound, getResponse.StatusCode);
+        Assert.That(getResponse.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
     }
 
     [Test]
@@ -224,7 +223,7 @@ public class TodoApiIntegrationTests
         var response = await _client.DeleteAsync("/api/todo/99999");
 
         // Assert
-        ClassicAssert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
+        Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
     }
 
     [Test]
@@ -247,9 +246,9 @@ public class TodoApiIntegrationTests
         // Assert
         response.EnsureSuccessStatusCode();
         var result = await response.Content.ReadFromJsonAsync<TodoListResponse>();
-        ClassicAssert.IsNotNull(result);
-        ClassicAssert.AreEqual(1, result!.TotalCount);
-        ClassicAssert.AreEqual(createdTodo.Id, result.Items.First().Id);
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result!.TotalCount, Is.EqualTo(1));
+        Assert.That(result.Items.First().Id, Is.EqualTo(createdTodo.Id));
     }
 
     [Test]
@@ -272,8 +271,8 @@ public class TodoApiIntegrationTests
         // Assert
         restoreResponse.EnsureSuccessStatusCode();
         var restoredTodo = await restoreResponse.Content.ReadFromJsonAsync<TodoResponse>();
-        ClassicAssert.IsNotNull(restoredTodo);
-        ClassicAssert.AreEqual(createdTodo.Id, restoredTodo!.Id);
+        Assert.That(restoredTodo, Is.Not.Null);
+        Assert.That(restoredTodo!.Id, Is.EqualTo(createdTodo.Id));
 
         var getResponse = await _client.GetAsync($"/api/todo/{createdTodo.Id}");
         getResponse.EnsureSuccessStatusCode();

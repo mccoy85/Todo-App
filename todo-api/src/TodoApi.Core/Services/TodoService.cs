@@ -5,6 +5,7 @@ using TodoApi.Core.Interfaces;
 
 namespace TodoApi.Core.Services;
 
+// Business logic for todo operations.
 public class TodoService : ITodoService
 {
     private readonly ITodoRepository _repository;
@@ -15,7 +16,7 @@ public class TodoService : ITodoService
         _repository = repository;
         _logger = logger;
     }
-
+    // Get all todos with optional filtering, sorting, and pagination.
     public async Task<TodoListResponse> GetAllTodosAsync(TodoQueryParameters queryParams)
     {
         var (items, totalCount) = await _repository.GetAllWithFiltersAsync(
@@ -34,7 +35,7 @@ public class TodoService : ITodoService
             PageSize = queryParams.PageSize
         };
     }
-
+    // Get all deleted todos with optional filtering, sorting, and pagination.
     public async Task<TodoListResponse> GetDeletedTodosAsync(TodoQueryParameters queryParams)
     {
         var (items, totalCount) = await _repository.GetDeletedWithFiltersAsync(
@@ -61,10 +62,12 @@ public class TodoService : ITodoService
 
     public async Task<TodoItem> CreateTodoAsync(CreateTodoRequest request)
     {
+        var (title, description) = Normalize(request.Title, request.Description);
+
         var todo = new TodoItem
         {
-            Title = request.Title,
-            Description = request.Description,
+            Title = title,
+            Description = string.IsNullOrWhiteSpace(description) ? null : description,
             DueDate = request.DueDate,
             Priority = request.Priority,
             CreatedAt = DateTime.UtcNow
@@ -86,8 +89,10 @@ public class TodoService : ITodoService
             return null;
         }
 
-        todo.Title = request.Title;
-        todo.Description = request.Description;
+        var (title, description) = Normalize(request.Title, request.Description);
+
+        todo.Title = title;
+        todo.Description = string.IsNullOrWhiteSpace(description) ? null : description;
         todo.IsCompleted = request.IsCompleted;
         todo.DueDate = request.DueDate;
         todo.Priority = request.Priority;
@@ -150,4 +155,14 @@ public class TodoService : ITodoService
         DueDate = todo.DueDate,
         Priority = todo.Priority
     };
+    // Normalize title and description by trimming whitespace.
+    private static (string Title, string? Description) Normalize(
+        string? title,
+        string? description)
+    {
+        var trimmedTitle = title?.Trim() ?? string.Empty;
+        var trimmedDescription = description?.Trim();
+
+        return (trimmedTitle, trimmedDescription);
+    }
 }

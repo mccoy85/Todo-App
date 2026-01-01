@@ -7,6 +7,8 @@ public class SortByValidationAttribute : ValidationAttribute
 {
     private static readonly string[] ValidValues = { "title", "duedate", "priority", "iscompleted", "createdat" };
 
+    // Validate that SortBy is one of the allowed values (case-insensitive)
+    // or null/empty (which defaults to createdat).
     protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
     {
         if (value == null || string.IsNullOrWhiteSpace(value.ToString()))

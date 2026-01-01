@@ -3,6 +3,7 @@ using TodoApi.Core.Entities;
 
 namespace TodoApi.Infrastructure.Data;
 
+// EF Core DbContext for Todo entities.
 public class TodoDbContext : DbContext
 {
     public TodoDbContext(DbContextOptions<TodoDbContext> options) : base(options)
@@ -23,6 +24,12 @@ public class TodoDbContext : DbContext
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("datetime('now')");
             entity.Property(e => e.IsDeleted).HasDefaultValue(false);
             entity.HasQueryFilter(e => !e.IsDeleted);
+
+            entity.HasIndex(e => e.IsDeleted);
+            entity.HasIndex(e => e.IsCompleted);
+            entity.HasIndex(e => e.Priority);
+            entity.HasIndex(e => e.CreatedAt);
+            entity.HasIndex(e => e.DueDate);
         });
     }
 }

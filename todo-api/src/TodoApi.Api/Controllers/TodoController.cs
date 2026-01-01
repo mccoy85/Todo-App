@@ -5,6 +5,7 @@ using TodoApi.Core.Interfaces;
 
 namespace TodoApi.Api.Controllers;
 
+// HTTP endpoints for CRUD and list operations on todos.
 [ApiController]
 [Route("api/[controller]")]
 public class TodoController : ControllerBase
