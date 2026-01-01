@@ -18,7 +18,6 @@ if (!builder.Environment.IsEnvironment("Testing"))
 
 // Add services to the container.
 builder.Services.AddControllers();
-builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -67,12 +66,14 @@ app.UseExceptionHandling();
 
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
-    app.UseSwagger();
+    app.UseSwagger(options =>
+    {
+        options.RouteTemplate = "api/docs/{documentName}/swagger.json";
+    });
     app.UseSwaggerUI(options =>
     {
-        options.SwaggerEndpoint("/swagger/v1/swagger.json", "Todo API v1");
-        options.RoutePrefix = "swagger";
+        options.SwaggerEndpoint("/api/docs/v1/swagger.json", "Todo API v1");
+        options.RoutePrefix = "api/docs";
     });
 }
 
