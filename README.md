@@ -1,0 +1,176 @@
+# Todo App
+
+A full-stack Todo application with a .NET 9 API backend and React + Ant Design frontend.
+
+## Project Structure
+
+```
+TodoApp/
+├── src/
+│   ├── TodoApi.Api/           # ASP.NET Core Web API
+│   ├── TodoApi.Core/          # Business logic, entities, interfaces, DTOs
+│   └── TodoApi.Infrastructure/# Data access, repositories, EF Core
+├── tests/
+│   ├── TodoApi.Api.Tests/     # Integration tests
+│   ├── TodoApi.Core.Tests/    # Service unit tests
+│   └── TodoApi.Infrastructure.Tests/ # Repository tests
+├── todo-client/               # React + TypeScript frontend
+└── TodoApi.sln
+```
+
+## Prerequisites
+
+- [.NET 9 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)
+- [Node.js 18+](https://nodejs.org/)
+- npm or yarn
+
+## Quick Start
+
+### 1. Run the API
+
+```bash
+cd src/TodoApi.Api
+dotnet run
+```
+
+The API will start at `http://localhost:5121`
+
+### 2. Run the Frontend
+
+```bash
+cd todo-client
+npm install
+npm run dev
+```
+
+The frontend will start at `http://localhost:3000` (configurable via `VITE_UI_HOST`/`VITE_UI_PORT`)
+
+### 3. View API Documentation
+
+Open `http://localhost:5121/swagger` to see the Swagger UI with all endpoints.
+
+## API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/todo` | Get all todos (with filtering, sorting, pagination) |
+| GET | `/api/todo/{id}` | Get a specific todo |
+| POST | `/api/todo` | Create a new todo |
+| PUT | `/api/todo/{id}` | Update a todo |
+| PATCH | `/api/todo/{id}/toggle` | Toggle completion status |
+| DELETE | `/api/todo/{id}` | Delete a todo |
+| GET | `/api/todo/deleted` | Get deleted todos |
+| PATCH | `/api/todo/{id}/restore` | Restore a deleted todo |
+
+### Query Parameters (GET /api/todo)
+
+- `isCompleted` - Filter by completion status (true/false)
+- `priority` - Filter by priority (0=Low, 1=Medium, 2=High)
+- `sortBy` - Sort field (title, duedate, priority, iscompleted, createdat)
+- `sortDescending` - Sort direction (true/false)
+- `page` - Page number (default: 1)
+- `pageSize` - Items per page (default: 10, max: 100)
+
+## Running Tests
+
+### Backend Tests
+
+```bash
+# Run all tests
+dotnet test
+
+# Run specific test project
+dotnet test tests/TodoApi.Api.Tests
+dotnet test tests/TodoApi.Core.Tests
+dotnet test tests/TodoApi.Infrastructure.Tests
+```
+
+### Frontend Build
+
+```bash
+cd todo-client
+npm run build
+```
+
+## Architecture
+
+### Backend (Clean Architecture)
+
+- **Api Layer** (`TodoApi.Api`) - Controllers, middleware, configuration
+- **Core Layer** (`TodoApi.Core`) - Entities, DTOs, interfaces, services
+- **Infrastructure Layer** (`TodoApi.Infrastructure`) - EF Core, repositories, data access
+
+### Key Design Decisions
+
+1. **Repository Pattern** - Generic `IRepository<T>` with specialized `ITodoRepository` for custom queries
+2. **DTOs** - Separate request/response DTOs (never expose EF entities directly)
+3. **Validation** - Data annotations on DTOs with consistent error responses
+4. **Global Error Handling** - Middleware returns structured JSON error responses
+
+### Frontend
+
+- **React 19** with TypeScript
+- **Ant Design** for UI components
+- **SWR** for data fetching with caching and invalidation
+- **Vite** for fast development and builds
+
+### Key Features
+
+- Loading, error, and empty states handled throughout
+- Optimistic UI updates with proper error handling
+- Form validation matching backend constraints
+- Responsive filtering and sorting
+
+## Configuration
+
+### API (src/TodoApi.Api/appsettings.json)
+
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Data Source=todo.db"
+  },
+  "Api": {
+    "Host": "localhost",
+    "Port": 5121
+  }
+}
+```
+
+### Frontend (todo-client/.env)
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `VITE_API_HOST` | API server hostname | `localhost` |
+| `VITE_API_PORT` | API server port | `5121` |
+| `VITE_API_BASE_URL` | Full API base URL (overrides host/port) | `http://localhost:5121/api/todo` |
+| `VITE_API_BATCH_SIZE` | Number of items fetched per API request when loading all todos | `100` |
+| `VITE_UI_HOST` | Frontend dev server hostname | `localhost` |
+| `VITE_UI_PORT` | Frontend dev server port | `3000` |
+
+Example `.env` file:
+```
+VITE_API_HOST=localhost
+VITE_API_PORT=5121
+VITE_API_BASE_URL=http://localhost:5121/api/todo
+VITE_API_BATCH_SIZE=100
+VITE_UI_HOST=localhost
+VITE_UI_PORT=3000
+```
+
+## Trade-offs and Assumptions
+
+1. **SQLite** - Chosen for simplicity and portability. For production, consider PostgreSQL or SQL Server.
+2. **No Authentication** - This is a demo app. Real apps would need auth middleware.
+3. **Simple Service Layer** - No CQRS/MediatR to keep complexity low for a todo app.
+4. **Soft Deletes Implemented** - Deleted todos are hidden by default and can be restored.
+
+## What I'd Add With More Time
+
+1. **User authentication** with JWT
+2. **Real-time updates** with SignalR
+3. **Frontend tests** with Vitest and React Testing Library
+4. **Docker** compose for easy deployment
+5. **CI/CD pipeline** with GitHub Actions
+6. **Rate limiting** and request throttling
+7. **Logging** with Serilog and structured logs

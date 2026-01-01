@@ -1,0 +1,34 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --tasky-ink: #1f1b16;
+  --tasky-paper: #f6f1e8;
+  --tasky-cream: #fdf8f2;
+  --tasky-ember: #ff7a1a;
+  --tasky-plum: #5b2b4d;
+  --tasky-olive: #4f6f52;
+  --tasky-shadow: rgba(17, 12, 8, 0.12);
+  --tasky-font-display: 'Bree Serif', 'Georgia', 'Times New Roman', serif;
+  --tasky-font-body: 'Avenir Next', 'Futura', 'Trebuchet MS', sans-serif;
+}
+
+body {
+  font-family: var(--tasky-font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--tasky-paper);
+  color: var(--tasky-ink);
+}
+
+#root {
+  min-height: 100vh;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}

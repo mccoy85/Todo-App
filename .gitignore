@@ -1,0 +1,39 @@
+# Build outputs
+**/bin/
+**/obj/
+**/TestResults/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Editor directories and files
+.idea/
+.vscode/
+!.vscode/extensions.json
+.DS_Store
+Thumbs.db
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Node artifacts
+**/node_modules/
+**/dist/
+**/dist-ssr/
+**/*.local
+
+# SQLite databases
+*.db
+*.db-wal
+*.db-shm
+
+# Coverage
+**/coverage/
