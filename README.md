@@ -90,23 +90,6 @@ dotnet test tests/TodoApi.Core.Tests
 dotnet test tests/TodoApi.Infrastructure.Tests
 ```
 
-## Docker
-
-Run both with Docker Compose (from the repo root):
-
-```bash
-docker compose up --build
-```
-
-Note: the Docker Compose setup configures the frontend to call the API via `/api` and proxies to the `api` container.
-
-To point the frontend at a different API base URL during build:
-
-```bash
-docker build -f todo-client/Dockerfile -t todo-client \
-  --build-arg VITE_API_BASE_URL=http://localhost:5121/api .
-```
-
 ### Frontend Tests
 
 ```bash
@@ -129,9 +112,19 @@ cd todo-client
 npm run build
 ```
 
+## Docker
+
+Run both with Docker Compose (from the repo root):
+
+```bash
+docker compose up --build
+```
+
+Note: the Docker Compose setup configures the frontend to call the API via `/api` and proxies to the `api` container.
+
 ## Architecture
 
-### Backend (Clean Architecture)
+### Backend
 
 - **Api Layer** (`TodoApi.Api`) - Controllers, middleware, configuration
 - **Core Layer** (`TodoApi.Core`) - Entities, DTOs, interfaces, services
