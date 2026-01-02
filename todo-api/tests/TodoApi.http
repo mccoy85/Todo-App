@@ -1,0 +1,139 @@
+@baseUrl = http://localhost:5121/api
+
+#############################################
+# WORKFLOW: Run these requests in order
+#############################################
+
+### 1. Create first todo
+# @name createTodo1
+POST {{baseUrl}}/todo
+Content-Type: application/json
+
+{
+  "title": "Buy groceries",
+  "description": "Milk, eggs, bread",
+  "dueDate": "2026-01-15T00:00:00Z",
+  "priority": 1
+}
+
+### 2. Create second todo (high priority)
+# @name createTodo2
+POST {{baseUrl}}/todo
+Content-Type: application/json
+
+{
+  "title": "Finish project report",
+  "description": "Complete the quarterly report",
+  "dueDate": "2026-01-10T00:00:00Z",
+  "priority": 2
+}
+
+### 3. Create third todo (minimal fields)
+# @name createTodo3
+POST {{baseUrl}}/todo
+Content-Type: application/json
+
+{
+  "title": "Quick task"
+}
+
+### 4. Get all todos - should show 3 items
+GET {{baseUrl}}/todo
+
+### 5. Get first todo by ID
+GET {{baseUrl}}/todo/{{createTodo1.response.body.id}}
+
+### 6. Get todos filtered by high priority - should show 1 item
+GET {{baseUrl}}/todo?priority=High
+
+### 7. Get todos sorted by due date ascending
+GET {{baseUrl}}/todo?sortBy=duedate&sortDescending=false
+
+### 8. Update first todo
+PUT {{baseUrl}}/todo/{{createTodo1.response.body.id}}
+Content-Type: application/json
+
+{
+  "title": "Buy groceries (updated)",
+  "description": "Milk, eggs, bread, butter, cheese",
+  "isCompleted": false,
+  "dueDate": "2026-01-20T00:00:00Z",
+  "priority": 2
+}
+
+### 9. Verify update - check title changed
+GET {{baseUrl}}/todo/{{createTodo1.response.body.id}}
+
+### 10. Toggle first todo to completed
+PATCH {{baseUrl}}/todo/{{createTodo1.response.body.id}}/toggle
+
+### 11. Verify toggle - isCompleted should be true
+GET {{baseUrl}}/todo/{{createTodo1.response.body.id}}
+
+### 12. Get completed todos - should show 1 item
+GET {{baseUrl}}/todo?isCompleted=true
+
+### 13. Delete second todo
+DELETE {{baseUrl}}/todo/{{createTodo2.response.body.id}}
+
+### 14. Get all todos - should show 2 items now
+GET {{baseUrl}}/todo
+
+### 15. Get deleted todos - should show 1 item
+GET {{baseUrl}}/todo/deleted
+
+### 16. Restore deleted todo
+PATCH {{baseUrl}}/todo/{{createTodo2.response.body.id}}/restore
+
+### 17. Get all todos - should show 3 items again
+GET {{baseUrl}}/todo
+
+### 18. Get deleted todos - should be empty
+GET {{baseUrl}}/todo/deleted
+
+#############################################
+# VALIDATION ERRORS
+#############################################
+
+### Validation error - empty title
+POST {{baseUrl}}/todo
+Content-Type: application/json
+
+{
+  "title": "   ",
+  "priority": 1
+}
+
+### Validation error - past due date
+POST {{baseUrl}}/todo
+Content-Type: application/json
+
+{
+  "title": "Task with past date",
+  "dueDate": "2020-01-01T00:00:00Z"
+}
+
+### Validation error - invalid priority
+POST {{baseUrl}}/todo
+Content-Type: application/json
+
+{
+  "title": "Task with invalid priority",
+  "priority": 99
+}
+
+### Validation error - invalid query params
+GET {{baseUrl}}/todo?page=0&pageSize=500
+
+#############################################
+# CLEANUP (optional)
+#############################################
+
+### Delete all created todos
+DELETE {{baseUrl}}/todo/{{createTodo1.response.body.id}}
+
+###
+DELETE {{baseUrl}}/todo/{{createTodo2.response.body.id}}
+
+###
+DELETE {{baseUrl}}/todo/{{createTodo3.response.body.id}}
