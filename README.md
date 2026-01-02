@@ -22,7 +22,7 @@ TodoApp/
 ## Prerequisites
 
 - [.NET 9 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)
-- [Node.js 18+](https://nodejs.org/)
+- [Node.js 24](https://nodejs.org/)
 - npm or yarn
 
 ## Quick Start
@@ -88,6 +88,23 @@ dotnet test
 dotnet test tests/TodoApi.Api.Tests
 dotnet test tests/TodoApi.Core.Tests
 dotnet test tests/TodoApi.Infrastructure.Tests
+```
+
+## Docker
+
+Run both with Docker Compose (from the repo root):
+
+```bash
+docker compose up --build
+```
+
+Note: the Docker Compose setup configures the frontend to call the API via `/api` and proxies to the `api` container.
+
+To point the frontend at a different API base URL during build:
+
+```bash
+docker build -f todo-client/Dockerfile -t todo-client \
+  --build-arg VITE_API_BASE_URL=http://localhost:5121/api .
 ```
 
 ### Frontend Tests
@@ -194,13 +211,21 @@ VITE_UI_PORT=3000
 1. **SQLite** - Chosen for simplicity and portability. For production, consider PostgreSQL or SQL Server.
 2. **No Authentication** - This is a demo app. Real apps would need auth middleware.
 3. **Simple Service Layer** - No CQRS/MediatR to keep complexity low for a todo app.
+4. **Validation at the API Boundary** - FluentValidation runs on incoming requests; deeper business logic is kept minimal to avoid duplicating rule layers. In a more mature product, there would need to be deeper business logic implemented.
+5. **Soft Deletes Lifecycle** - Items can be restored. Longer term, higher usage app would need a retention policy for this.
+6. **Client-Side Full-List Caching** - The UI caches full lists for fast filtering/sorting; this trades higher memory usage for fewer API calls. Currently we limit the number of records we can pull to minimize overhead. In the long term we would want to implement a different way to determine which records to pull or we could use a hybrid pagination between the UI and API.
+
+## Scalability
+
+1. **UI** - Record count could become an issue with the client side caching and filtering/sorting.
+2. **API** - Would need to be scaled out behind a load balancer. If the app evolves into something with shared tasks, we would need to have a mechanism for real-time updates (ws/grpc).
+3. **Database** - Would need a production shared database that allows us to independently scale the API and UI and support connection pooling. Database could need to be distributed depending on scale. More complete indexes may need to be added based on the most common data queried.
 
 ## What I'd Add With More Time
 
 1. **User authentication** with JWT
 2. **Real-time updates** with SignalR
-3. **Docker** compose for easy deployment
-4. **CI/CD pipeline** with GitHub Actions
-5. **Rate limiting** and request throttling
-6. **Logging** with Serilog and structured logs
-7. **bulk actions** for deleting and completing
+3. **CI/CD pipeline** with GitHub Actions
+4. **Rate limiting** and request throttling
+5. **Logging** with Serilog and structured logs
+6. **bulk actions** for deleting and completing

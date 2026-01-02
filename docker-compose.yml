@@ -1,0 +1,27 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: todo-api/Dockerfile
+    ports:
+      - "5121:5121"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      Api__Host: "0.0.0.0"
+      Api__Port: "5121"
+    volumes:
+      - todoapi-data:/app
+
+  web:
+    build:
+      context: .
+      dockerfile: todo-client/Dockerfile
+      args:
+        VITE_API_BASE_URL: "/api"
+    ports:
+      - "3000:80"
+    depends_on:
+      - api
+
+volumes:
+  todoapi-data: {}
