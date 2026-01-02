@@ -36,6 +36,13 @@ dotnet run
 
 The API will start at `http://localhost:5121`
 
+### API Build
+
+```bash
+cd todo-api
+dotnet build
+```
+
 ### 2. Run the Frontend
 
 ```bash
@@ -45,6 +52,13 @@ npm run dev
 ```
 
 The frontend will start at `http://localhost:3000` (configurable via `VITE_UI_HOST`/`VITE_UI_PORT`)
+
+### Frontend Build
+
+```bash
+cd todo-client
+npm run build
+```
 
 ### 3. View API Documentation
 
@@ -105,12 +119,6 @@ npm run test:run
 npm run test:coverage
 ```
 
-### Frontend Build
-
-```bash
-cd todo-client
-npm run build
-```
 
 ## Docker
 
