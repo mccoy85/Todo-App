@@ -24,6 +24,7 @@ TodoApp/
 - [.NET 9 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)
 - [Node.js 24](https://nodejs.org/)
 - npm or yarn
+- Node version is pinned in `.nvmrc`
 
 ## Quick Start
 
