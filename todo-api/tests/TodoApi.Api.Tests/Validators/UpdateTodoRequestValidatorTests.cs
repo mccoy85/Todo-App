@@ -55,7 +55,7 @@ public class UpdateTodoRequestValidatorTests
             Title = "Valid title",
             Priority = Priority.Medium,
             IsCompleted = false,
-            DueDate = DateTime.UtcNow.AddDays(-3)
+            DueDate = DateTime.UtcNow.AddDays(-2)
         };
 
         var result = _validator.Validate(request);

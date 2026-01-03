@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import { Modal, Form, Input, Select, DatePicker, Flex } from 'antd';
 import dayjs from 'dayjs';
 import type { Todo, CreateTodoRequest } from '../types/todo';
@@ -13,10 +13,15 @@ interface TodoFormModalProps {
   onCancel: () => void;
 }
 
+// Modal form for creating or editing a todo.
 export const TodoFormModal = ({ open, editingTodo, initialValues, isSubmitting, onSubmit, onCancel }: TodoFormModalProps) => {
-  const [isFormValid, setIsFormValid] = useState(false);
   const [form] = Form.useForm();
 
+  // Watch the title field to derive form validity reactively.
+  const titleValue = Form.useWatch('title', form);
+  const isFormValid = Boolean(titleValue?.trim());
+
+  // Populate form fields when opening for edit or duplicate.
   useEffect(() => {
     if (open) {
       if (editingTodo) {
@@ -26,7 +31,6 @@ export const TodoFormModal = ({ open, editingTodo, initialValues, isSubmitting, 
           priority: editingTodo.priority,
           dueDate: editingTodo.dueDate ? dayjs(editingTodo.dueDate) : null,
         });
-        setIsFormValid(true);
       } else if (initialValues) {
         form.setFieldsValue({
           title: initialValues.title ?? '',
@@ -34,30 +38,27 @@ export const TodoFormModal = ({ open, editingTodo, initialValues, isSubmitting, 
           priority: initialValues.priority ?? Priority.Low,
           dueDate: initialValues.dueDate ? dayjs(initialValues.dueDate) : null,
         });
-        setIsFormValid(Boolean(initialValues.title?.trim()));
       }
     } else {
       form.resetFields();
-      setIsFormValid(false);
     }
   }, [open, editingTodo, initialValues, form]);
 
+  // Validate and submit the form data.
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
-      onSubmit({
+
+      const payload = {
         title: values.title.trim(),
         description: values.description?.trim() || undefined,
         priority: values.priority,
-        dueDate: values.dueDate?.toISOString(),
-      });
+        dueDate: values.dueDate
+          ? values.dueDate.startOf('day').format('YYYY-MM-DDTHH:mm:ss')
+          : undefined,
+      };
+      onSubmit(payload);
     } catch { /* validation failed */ }
-  };
-
-  const handleFieldsChange = () => {
-    const hasErrors = form.getFieldsError().some(({ errors }) => errors.length);
-    const titleValue = form.getFieldValue('title');
-    setIsFormValid(Boolean(titleValue?.trim()) && !hasErrors);
   };
 
   return (
@@ -73,7 +74,7 @@ export const TodoFormModal = ({ open, editingTodo, initialValues, isSubmitting, 
       centered
       width={480}
     >
-      <Form form={form} layout="vertical" style={{ marginTop: 16 }} onFieldsChange={handleFieldsChange}>
+      <Form form={form} layout="vertical" style={{ marginTop: 16 }}>
         <Form.Item name="title" label="Title" rules={[{ required: true, message: 'Required' }, { max: 200 }]}>
           <Input placeholder="What needs to be done?" size="large" />
         </Form.Item>
@@ -84,8 +85,25 @@ export const TodoFormModal = ({ open, editingTodo, initialValues, isSubmitting, 
           <Form.Item name="priority" label="Priority" style={{ flex: 1 }} initialValue={Priority.Low} rules={[{ required: true, message: 'Required' }]}>
             <Select size="large" options={PRIORITY_OPTIONS} />
           </Form.Item>
-          <Form.Item name="dueDate" label="Due Date" style={{ flex: 1 }} rules={[{ validator: (_, value) => !value || value >= dayjs().startOf('day') ? Promise.resolve() : Promise.reject('Cannot be in the past') }]}>
-            <DatePicker style={{ width: '100%' }} size="large" format="MMM D, YYYY" disabledDate={(d) => d < dayjs().startOf('day')} />
+          <Form.Item
+            name="dueDate"
+            label="Due Date"
+            style={{ flex: 1 }}
+            rules={[
+              {
+                validator: (_, value) =>
+                  !value || value >= dayjs().startOf('day')
+                    ? Promise.resolve()
+                    : Promise.reject('Cannot be in the past'),
+              },
+            ]}
+          >
+            <DatePicker
+              style={{ width: '100%' }}
+              size="large"
+              format="MMM D, YYYY"
+              disabledDate={(d) => d < dayjs().startOf('day')}
+            />
           </Form.Item>
         </Flex>
       </Form>

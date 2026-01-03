@@ -20,7 +20,7 @@ public class UpdateTodoRequestValidator : AbstractValidator<UpdateTodoRequest>
             .WithMessage("Description cannot exceed 1000 characters");
 
         RuleFor(x => x.DueDate)
-            .Must(BeTodayOrLater)
+            .Must(ValidationHelpers.BeTodayOrLater)
             .When(x => x.DueDate.HasValue)
             .WithMessage("Due date must be today or later");
 
@@ -29,13 +29,4 @@ public class UpdateTodoRequestValidator : AbstractValidator<UpdateTodoRequest>
             .WithMessage("Priority must be Low, Medium, or High");
     }
 
-    private static bool BeTodayOrLater(DateTime? dueDate)
-    {
-        if (!dueDate.HasValue)
-        {
-            return true;
-        }
-
-        return dueDate.Value.Date >= DateTime.UtcNow.Date;
-    }
 }

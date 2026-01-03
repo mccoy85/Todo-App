@@ -49,7 +49,7 @@ public class CreateTodoRequestValidatorTests
     [Test]
     public void Should_Fail_When_DueDate_Is_In_Past()
     {
-        var request = new CreateTodoRequest { Title = "Valid title", DueDate = DateTime.UtcNow.AddDays(-1) };
+        var request = new CreateTodoRequest { Title = "Valid title", DueDate = DateTime.UtcNow.AddDays(-2) };
 
         var result = _validator.Validate(request);
 

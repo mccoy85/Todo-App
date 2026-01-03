@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Layout, Card, Button, Flex, Typography, Select, Segmented, Badge, Pagination, Spin, Empty, Tag, Checkbox, Tooltip } from 'antd';
+import { Layout, Card, Button, Flex, Typography, Select, Segmented, Badge, Pagination, Spin, Empty, Tag, Checkbox, Tooltip, App } from 'antd';
 import {
   PlusOutlined,
   ReloadOutlined,
@@ -12,7 +12,6 @@ import {
   CalendarOutlined,
   FlagOutlined,
 } from '@ant-design/icons';
-import { message } from 'antd';
 import { Link } from 'react-router-dom';
 import { useFilteredTodos, useCreateTodo, useUpdateTodo, useToggleTodo, useDeleteTodo, useDeletedTodos, useRestoreTodo } from '../hooks/useTodos';
 import { useTodoFilters } from '../hooks/useTodoFilters';
@@ -24,6 +23,7 @@ import { Priority, PRIORITY_OPTIONS, SORT_OPTIONS } from '../types/todo';
 const { Header, Content } = Layout;
 const { Title, Text } = Typography;
 
+// Visual styling for each priority level (color, label, and whether to show a flag icon).
 const priorityConfig: Record<Priority, { color: string; label: string; icon: boolean }> = {
   [Priority.Low]: { color: '#52c41a', label: 'Low', icon: false },
   [Priority.Medium]: { color: '#faad14', label: 'Medium', icon: false },
@@ -32,10 +32,10 @@ const priorityConfig: Record<Priority, { color: string; label: string; icon: boo
 
 // Convert due dates into a user-friendly label and status flags.
 const formatDueDate = (dateString: string): { text: string; isOverdue: boolean; isToday: boolean } => {
-  const date = new Date(dateString);
+  const [year, month, day] = dateString.split('T')[0].split('-').map(Number);
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  const dueDate = new Date(date);
+  const dueDate = new Date(year, month - 1, day);
   dueDate.setHours(0, 0, 0, 0);
   const diffTime = dueDate.getTime() - today.getTime();
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -44,11 +44,12 @@ const formatDueDate = (dateString: string): { text: string; isOverdue: boolean; 
   if (diffDays === 0) return { text: 'Due today', isOverdue: false, isToday: true };
   if (diffDays === 1) return { text: 'Due tomorrow', isOverdue: false, isToday: false };
   if (diffDays <= 7) return { text: `Due in ${diffDays} days`, isOverdue: false, isToday: false };
-  return { text: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), isOverdue: false, isToday: false };
+  return { text: dueDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), isOverdue: false, isToday: false };
 };
 
 // Main task list view with filters, pagination, and CRUD actions.
 export const TodoPage = () => {
+  const { message } = App.useApp();
   const [formOpen, setFormOpen] = useState(false);
   const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
   const [duplicateValues, setDuplicateValues] = useState<CreateTodoRequest | null>(null);
@@ -85,31 +86,39 @@ export const TodoPage = () => {
   const refetch = isDeletedView ? refetchDeleted : refetchActive;
   const deletedCount = deletedTotalCount;
 
+  // Handle create or update submission from the form modal.
   const handleFormSubmit = (todoData: CreateTodoRequest) => {
     if (editingTodo) {
       updateMutation.mutate(
         { id: editingTodo.id, todo: { ...todoData, isCompleted: editingTodo.isCompleted } },
-        { onSuccess: () => { message.success('Task updated'); closeForm(); } }
+        {
+          onSuccess: () => { message.success('Task updated'); closeForm(); },
+          onError: (error) => message.error(error.message),
+        }
       );
     } else {
       createMutation.mutate(todoData, {
         onSuccess: () => { message.success('Task created'); closeForm(); },
+        onError: (error) => message.error(error.message),
       });
     }
   };
 
+  // Reset form state and close the modal.
   const closeForm = () => {
     setEditingTodo(null);
     setDuplicateValues(null);
     setFormOpen(false);
   };
 
+  // Open the form modal in edit mode with existing todo data.
   const openEditForm = (todo: Todo) => {
     setEditingTodo(todo);
     setDuplicateValues(null);
     setFormOpen(true);
   };
 
+  // Open the form modal pre-filled with a copy of an existing todo.
   const openDuplicateForm = (todo: Todo) => {
     setEditingTodo(null);
     setDuplicateValues({
