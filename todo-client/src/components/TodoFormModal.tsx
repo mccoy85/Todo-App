@@ -54,7 +54,7 @@ export const TodoFormModal = ({ open, editingTodo, initialValues, isSubmitting, 
         description: values.description?.trim() || undefined,
         priority: values.priority,
         dueDate: values.dueDate
-          ? values.dueDate.startOf('day').format('YYYY-MM-DDTHH:mm:ss')
+          ? values.dueDate.endOf('day').utc().format('YYYY-MM-DDTHH:mm:ss[Z]')
           : undefined,
       };
       onSubmit(payload);
