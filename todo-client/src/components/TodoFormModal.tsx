@@ -29,14 +29,14 @@ export const TodoFormModal = ({ open, editingTodo, initialValues, isSubmitting, 
           title: editingTodo.title,
           description: editingTodo.description ?? '',
           priority: editingTodo.priority,
-          dueDate: editingTodo.dueDate ? dayjs(editingTodo.dueDate) : null,
+          dueDate: editingTodo.dueDate ? dayjs.utc(editingTodo.dueDate).local() : null,
         });
       } else if (initialValues) {
         form.setFieldsValue({
           title: initialValues.title ?? '',
           description: initialValues.description ?? '',
           priority: initialValues.priority ?? Priority.Low,
-          dueDate: initialValues.dueDate ? dayjs(initialValues.dueDate) : null,
+          dueDate: initialValues.dueDate ? dayjs.utc(initialValues.dueDate).local() : null,
         });
       }
     } else {
