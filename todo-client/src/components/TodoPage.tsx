@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Layout, Card, Button, Flex, Typography, Select, Segmented, Badge, Pagination, Spin, Empty, Tag, Checkbox, Tooltip, App } from 'antd';
+import dayjs from 'dayjs';
 import {
   PlusOutlined,
   ReloadOutlined,
@@ -32,19 +33,16 @@ const priorityConfig: Record<Priority, { color: string; label: string; icon: boo
 
 // Convert due dates into a user-friendly label and status flags.
 const formatDueDate = (dateString: string): { text: string; isOverdue: boolean; isToday: boolean } => {
-  const [year, month, day] = dateString.split('T')[0].split('-').map(Number);
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const dueDate = new Date(year, month - 1, day);
-  dueDate.setHours(0, 0, 0, 0);
-  const diffTime = dueDate.getTime() - today.getTime();
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  // Parse the UTC date from the server and convert to local date
+  const dueDate = dayjs.utc(dateString).local().startOf('day');
+  const today = dayjs().startOf('day');
+  const diffDays = dueDate.diff(today, 'day');
 
   if (diffDays < 0) return { text: `${Math.abs(diffDays)} day${Math.abs(diffDays) > 1 ? 's' : ''} overdue`, isOverdue: true, isToday: false };
   if (diffDays === 0) return { text: 'Due today', isOverdue: false, isToday: true };
   if (diffDays === 1) return { text: 'Due tomorrow', isOverdue: false, isToday: false };
   if (diffDays <= 7) return { text: `Due in ${diffDays} days`, isOverdue: false, isToday: false };
-  return { text: dueDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), isOverdue: false, isToday: false };
+  return { text: dueDate.format('MMM D'), isOverdue: false, isToday: false };
 };
 
 // Main task list view with filters, pagination, and CRUD actions.
